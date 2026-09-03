@@ -260,12 +260,216 @@
     margin-top:10px; font-family:'Oswald',sans-serif; font-size:0.72rem;
     letter-spacing:0.08em; color:#8a7d5c; text-transform:uppercase;
   }
+
+  /* ---------- MINESWORD Account ---------- */
+  .msw-account-trigger{
+    position:fixed; top:18px; left:18px; z-index:50;
+    display:flex; align-items:center; gap:8px;
+    font-family:'Oswald',sans-serif; font-size:0.75rem; letter-spacing:0.06em;
+    text-transform:uppercase; color:var(--paper);
+    background:rgba(28,22,17,0.75); backdrop-filter:blur(6px);
+    border:1px solid var(--line); border-radius:30px;
+    padding:9px 16px; cursor:pointer; transition:border-color .2s ease, transform .15s ease;
+  }
+  .msw-account-trigger:hover{border-color:rgba(227,167,60,0.5); transform:translateY(-1px);}
+  .msw-account-trigger .dot{
+    width:7px; height:7px; border-radius:50%; background:var(--khaki); flex-shrink:0;
+  }
+  .msw-account-trigger.is-logged .dot{background:var(--olive-bright);}
+
+  .msw-overlay{
+    position:fixed; inset:0; z-index:100; display:none;
+    align-items:center; justify-content:center;
+    background:rgba(10,8,6,0.72); backdrop-filter:blur(3px);
+    padding:24px;
+  }
+  .msw-overlay.open{display:flex;}
+  .msw-modal{
+    width:100%; max-width:400px; max-height:88vh; overflow-y:auto;
+    background:var(--bg-panel); border:1px solid var(--line); border-radius:10px;
+    padding:30px 26px; position:relative;
+  }
+  .msw-modal::before{
+    content:''; position:absolute; top:0; right:0; bottom:0; width:4px;
+    background:linear-gradient(180deg, var(--ember-bright), var(--ember));
+  }
+  .msw-close{
+    position:absolute; top:14px; left:16px; background:none; border:none;
+    color:var(--khaki); font-size:1.3rem; cursor:pointer; line-height:1;
+    padding:4px 8px;
+  }
+  .msw-close:hover{color:var(--paper);}
+  .msw-modal h3{
+    font-size:1.15rem; color:var(--paper); margin-bottom:6px; padding-left:20px;
+  }
+  .msw-modal .msw-sub{color:var(--khaki); font-size:0.82rem; margin-bottom:20px;}
+  .msw-tabs{display:flex; gap:8px; margin-bottom:20px;}
+  .msw-tab{
+    flex:1; text-align:center; padding:9px 6px; border-radius:6px;
+    border:1px solid var(--line); background:transparent; color:var(--khaki);
+    font-family:'Vazirmatn',sans-serif; font-size:0.85rem; cursor:pointer;
+    transition:all .15s ease;
+  }
+  .msw-tab.active{
+    border-color:rgba(227,167,60,0.5); color:var(--paper);
+    background:rgba(227,167,60,0.08);
+  }
+  .msw-field{margin-bottom:14px;}
+  .msw-field label{
+    display:block; font-size:0.78rem; color:var(--khaki); margin-bottom:6px;
+  }
+  .msw-field input{
+    width:100%; background:var(--bg); border:1px solid var(--line);
+    color:var(--paper); border-radius:6px; padding:11px 13px;
+    font-family:'Vazirmatn',sans-serif; font-size:0.92rem; direction:ltr; text-align:left;
+  }
+  .msw-field input:focus{outline:none; border-color:rgba(227,167,60,0.5);}
+  .msw-btn{
+    width:100%; border:none; border-radius:6px; padding:12px;
+    font-family:'Oswald',sans-serif; font-size:0.85rem; letter-spacing:0.04em;
+    color:var(--bg); background:var(--alarm); cursor:pointer;
+    transition:transform .15s ease, opacity .15s ease; margin-top:4px;
+  }
+  .msw-btn:hover{transform:translateY(-1px);}
+  .msw-btn:disabled{opacity:0.55; cursor:default; transform:none;}
+  .msw-btn-ghost{
+    width:100%; border:1px solid var(--line); border-radius:6px; padding:11px;
+    font-family:'Vazirmatn',sans-serif; font-size:0.85rem;
+    color:var(--khaki); background:transparent; cursor:pointer; margin-top:10px;
+  }
+  .msw-btn-ghost:hover{color:var(--paper); border-color:rgba(237,230,214,0.3);}
+  .msw-msg{
+    font-size:0.8rem; border-radius:6px; padding:10px 12px; margin-bottom:14px;
+    display:none; line-height:1.6;
+  }
+  .msw-msg.show{display:block;}
+  .msw-msg.err{background:rgba(194,65,12,0.12); color:#f0a988; border:1px solid rgba(194,65,12,0.35);}
+  .msw-msg.ok{background:rgba(124,146,87,0.12); color:#b9d29a; border:1px solid rgba(124,146,87,0.35);}
+  .msw-link-row{text-align:center; margin-top:16px; font-size:0.82rem; color:var(--khaki);}
+  .msw-link-row a{color:var(--ember-bright); text-decoration:none; cursor:pointer;}
+  .msw-link-row a:hover{text-decoration:underline;}
+  .msw-panel{display:none;}
+  .msw-panel.active{display:block;}
+  .msw-profile-row{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 0; border-bottom:1px solid var(--line); font-size:0.85rem;
+  }
+  .msw-profile-row:last-of-type{border-bottom:none;}
+  .msw-profile-row span:first-child{color:var(--khaki);}
+  .msw-profile-row span:last-child{color:var(--paper); direction:ltr;}
 </style>
 </head>
 <body>
 
 <div class="grain"></div>
 <div class="vignette"></div>
+
+<button type="button" id="mswAccountTrigger" class="msw-account-trigger">
+  <span class="dot" id="mswAccountDot"></span>
+  <span id="mswAccountTriggerLabel">MINESWORD Account</span>
+</button>
+
+<div class="msw-overlay" id="mswOverlay">
+  <div class="msw-modal">
+    <button type="button" class="msw-close" id="mswClose" aria-label="بستن">&times;</button>
+
+    <div id="mswAuthWrap">
+      <h3>حساب Minesword</h3>
+      <p class="msw-sub">ورود یا ساخت حساب برای تیم Minesword</p>
+
+      <div class="msw-tabs">
+        <button type="button" class="msw-tab active" data-tab="login">ورود</button>
+        <button type="button" class="msw-tab" data-tab="signup">ثبت‌نام</button>
+      </div>
+
+      <div class="msw-msg" id="mswMsg"></div>
+
+      <!-- ---- LOGIN ---- -->
+      <div class="msw-panel active" data-panel="login">
+        <form id="mswLoginForm">
+          <div class="msw-field">
+            <label>ایمیل</label>
+            <input type="email" id="mswLoginEmail" required autocomplete="email">
+          </div>
+          <div class="msw-field">
+            <label>رمز عبور</label>
+            <input type="password" id="mswLoginPassword" required autocomplete="current-password">
+          </div>
+          <button type="submit" class="msw-btn" id="mswLoginBtn">ورود</button>
+        </form>
+        <div class="msw-link-row"><a id="mswGoForgot">رمز عبورت رو فراموش کردی؟</a></div>
+      </div>
+
+      <!-- ---- SIGNUP STEP 1: email ---- -->
+      <div class="msw-panel" data-panel="signup">
+        <form id="mswSignupForm">
+          <div class="msw-field">
+            <label>ایمیل</label>
+            <input type="email" id="mswSignupEmail" required autocomplete="email">
+          </div>
+          <button type="submit" class="msw-btn" id="mswSignupBtn">ارسال کد تأیید</button>
+        </form>
+      </div>
+
+      <!-- ---- OTP VERIFY (shared by signup + forgot) ---- -->
+      <div class="msw-panel" data-panel="otp">
+        <p class="msw-sub" id="mswOtpSub">کد ۶ رقمی ارسال‌شده به ایمیلت رو وارد کن.</p>
+        <form id="mswOtpForm">
+          <div class="msw-field">
+            <label>کد تأیید</label>
+            <input type="text" id="mswOtpCode" inputmode="numeric" pattern="[0-9]*" maxlength="6" required autocomplete="one-time-code">
+          </div>
+          <button type="submit" class="msw-btn" id="mswOtpBtn">تأیید کد</button>
+        </form>
+        <div class="msw-link-row"><a id="mswResendOtp">ارسال دوباره‌ی کد</a></div>
+      </div>
+
+      <!-- ---- SET PASSWORD (after otp verify, signup or reset) ---- -->
+      <div class="msw-panel" data-panel="setpass">
+        <p class="msw-sub" id="mswSetPassSub">یه رمز عبور برای حسابت بساز.</p>
+        <form id="mswSetPassForm">
+          <div class="msw-field">
+            <label>رمز عبور جدید</label>
+            <input type="password" id="mswNewPassword" minlength="6" required autocomplete="new-password">
+          </div>
+          <div class="msw-field">
+            <label>تکرار رمز عبور</label>
+            <input type="password" id="mswNewPassword2" minlength="6" required autocomplete="new-password">
+          </div>
+          <button type="submit" class="msw-btn" id="mswSetPassBtn">ذخیره رمز عبور</button>
+        </form>
+      </div>
+
+      <!-- ---- FORGOT PASSWORD: email ---- -->
+      <div class="msw-panel" data-panel="forgot">
+        <p class="msw-sub">ایمیلت رو وارد کن تا کد بازیابی برات ارسال بشه.</p>
+        <form id="mswForgotForm">
+          <div class="msw-field">
+            <label>ایمیل</label>
+            <input type="email" id="mswForgotEmail" required autocomplete="email">
+          </div>
+          <button type="submit" class="msw-btn" id="mswForgotBtn">ارسال کد بازیابی</button>
+        </form>
+        <div class="msw-link-row"><a id="mswBackToLogin">برگشت به ورود</a></div>
+      </div>
+    </div>
+
+    <!-- ---- LOGGED IN VIEW ---- -->
+    <div id="mswProfileWrap" style="display:none;">
+      <h3>حساب من</h3>
+      <p class="msw-sub">اطلاعات حساب Minesword شما</p>
+      <div class="msw-msg" id="mswProfileMsg"></div>
+      <div class="msw-profile-row"><span>ایمیل</span><span id="mswProfileEmail">—</span></div>
+      <div class="msw-field" style="margin-top:16px;">
+        <label>نام نمایشی</label>
+        <input type="text" id="mswDisplayName" autocomplete="nickname">
+      </div>
+      <button type="button" class="msw-btn" id="mswSaveProfileBtn">ذخیره تغییرات</button>
+      <button type="button" class="msw-btn-ghost" id="mswLogoutBtn">خروج از حساب</button>
+    </div>
+
+  </div>
+</div>
 
 <section class="hero">
   <h1 class="sr-only">تیم Minesword | Minesword Team | تیم ماین‌سورد | ماین‌سورد — استودیوی بازی‌سازی مستقل ایرانی</h1>
@@ -387,6 +591,393 @@
   استودیوی مستقل بازی‌سازی <b>Minesword</b>
   <div class="copyright">&copy; 2026 MINESWORD TEAM IRAN. All Rights Reserved.</div>
 </footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  var SUPABASE_URL = "https://fyxhnszuttcrbbnmheom.supabase.co";
+  var SUPABASE_KEY = "sb_publishable_GRGCn42mXD00LYF19huEIg_krITja70";
+
+  if (!window.supabase || !window.supabase.createClient) {
+    console.error("MINESWORD Account: Supabase SDK failed to load.");
+    return;
+  }
+
+  var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true
+    }
+  });
+
+  // ---------- element refs ----------
+  var trigger      = document.getElementById("mswAccountTrigger");
+  var triggerLabel = document.getElementById("mswAccountTriggerLabel");
+  var triggerDot   = document.getElementById("mswAccountDot");
+  var overlay      = document.getElementById("mswOverlay");
+  var closeBtn     = document.getElementById("mswClose");
+
+  var authWrap     = document.getElementById("mswAuthWrap");
+  var profileWrap  = document.getElementById("mswProfileWrap");
+
+  var tabs   = document.querySelectorAll(".msw-tab");
+  var panels = document.querySelectorAll(".msw-panel");
+
+  var msg = document.getElementById("mswMsg");
+  var profileMsg = document.getElementById("mswProfileMsg");
+
+  var loginForm     = document.getElementById("mswLoginForm");
+  var signupForm    = document.getElementById("mswSignupForm");
+  var otpForm       = document.getElementById("mswOtpForm");
+  var setPassForm   = document.getElementById("mswSetPassForm");
+  var forgotForm    = document.getElementById("mswForgotForm");
+
+  var goForgot     = document.getElementById("mswGoForgot");
+  var backToLogin  = document.getElementById("mswBackToLogin");
+  var resendOtp    = document.getElementById("mswResendOtp");
+
+  var saveProfileBtn = document.getElementById("mswSaveProfileBtn");
+  var logoutBtn       = document.getElementById("mswLogoutBtn");
+  var displayNameInput = document.getElementById("mswDisplayName");
+  var profileEmailEl   = document.getElementById("mswProfileEmail");
+
+  // state for the otp/setpass flow
+  var pendingEmail = null;   // email currently going through otp/setpass
+  var pendingMode  = null;   // "signup" | "reset"
+
+  // ---------- helpers ----------
+  function showMsg(el, text, type){
+    el.textContent = text;
+    el.className = "msw-msg show " + (type || "err");
+  }
+  function clearMsg(el){
+    el.textContent = "";
+    el.className = "msw-msg";
+  }
+  function setBusy(btn, busy, busyLabel, normalLabel){
+    btn.disabled = !!busy;
+    btn.textContent = busy ? busyLabel : normalLabel;
+  }
+  function showPanel(name){
+    panels.forEach(function(p){
+      p.classList.toggle("active", p.getAttribute("data-panel") === name);
+    });
+    clearMsg(msg);
+  }
+  function openModal(){
+    overlay.classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+  function closeModal(){
+    overlay.classList.remove("open");
+    document.body.style.overflow = "";
+  }
+  function resetAuthForms(){
+    loginForm.reset();
+    signupForm.reset();
+    otpForm.reset();
+    setPassForm.reset();
+    forgotForm.reset();
+    clearMsg(msg);
+    showPanel("login");
+    tabs.forEach(function(t){ t.classList.toggle("active", t.getAttribute("data-tab") === "login"); });
+  }
+
+  // ---------- profiles table sync ----------
+  function upsertProfile(user, extra){
+    var payload = Object.assign({
+      id: user.id,
+      email: user.email,
+      updated_at: new Date().toISOString()
+    }, extra || {});
+    return sb.from("profiles").upsert(payload, { onConflict: "id" });
+  }
+
+  function loadProfileIntoUI(user){
+    profileEmailEl.textContent = user.email || "—";
+    displayNameInput.value = "";
+    clearMsg(profileMsg);
+    sb.from("profiles").select("display_name").eq("id", user.id).maybeSingle()
+      .then(function(res){
+        if (res.data && res.data.display_name) {
+          displayNameInput.value = res.data.display_name;
+        }
+      })
+      .catch(function(){ /* profiles table read is best-effort */ });
+  }
+
+  // ---------- session/UI sync ----------
+  function renderForSession(session){
+    if (session && session.user) {
+      triggerLabel.textContent = "حساب من";
+      triggerDot.parentElement.classList.add("is-logged");
+      authWrap.style.display = "none";
+      profileWrap.style.display = "block";
+      loadProfileIntoUI(session.user);
+    } else {
+      triggerLabel.textContent = "MINESWORD Account";
+      triggerDot.parentElement.classList.remove("is-logged");
+      authWrap.style.display = "block";
+      profileWrap.style.display = "none";
+    }
+  }
+
+  sb.auth.getSession().then(function(res){
+    renderForSession(res.data.session);
+  });
+
+  sb.auth.onAuthStateChange(function(event, session){
+    if (event === "PASSWORD_RECOVERY") {
+      pendingMode = "reset";
+      pendingEmail = session && session.user ? session.user.email : null;
+      openModal();
+      authWrap.style.display = "block";
+      profileWrap.style.display = "none";
+      document.getElementById("mswSetPassSub").textContent = "یه رمز عبور جدید برای حسابت انتخاب کن.";
+      showPanel("setpass");
+      return;
+    }
+    renderForSession(session);
+  });
+
+  // ---------- open / close ----------
+  trigger.addEventListener("click", function(){
+    resetAuthForms();
+    openModal();
+    sb.auth.getSession().then(function(res){ renderForSession(res.data.session); });
+  });
+  closeBtn.addEventListener("click", closeModal);
+  overlay.addEventListener("click", function(e){
+    if (e.target === overlay) closeModal();
+  });
+
+  // ---------- tabs ----------
+  tabs.forEach(function(tab){
+    tab.addEventListener("click", function(){
+      tabs.forEach(function(t){ t.classList.remove("active"); });
+      tab.classList.add("active");
+      showPanel(tab.getAttribute("data-tab"));
+    });
+  });
+
+  goForgot.addEventListener("click", function(){
+    showPanel("forgot");
+  });
+  backToLogin.addEventListener("click", function(){
+    tabs.forEach(function(t){ t.classList.toggle("active", t.getAttribute("data-tab") === "login"); });
+    showPanel("login");
+  });
+
+  // ---------- LOGIN (email + password) ----------
+  loginForm.addEventListener("submit", function(e){
+    e.preventDefault();
+    clearMsg(msg);
+    var email = document.getElementById("mswLoginEmail").value.trim();
+    var password = document.getElementById("mswLoginPassword").value;
+    var btn = document.getElementById("mswLoginBtn");
+    setBusy(btn, true, "در حال ورود...", "ورود");
+
+    sb.auth.signInWithPassword({ email: email, password: password })
+      .then(function(res){
+        setBusy(btn, false, "", "ورود");
+        if (res.error) {
+          showMsg(msg, "ورود ناموفق: " + res.error.message, "err");
+          return;
+        }
+        if (res.data && res.data.user) {
+          upsertProfile(res.data.user).catch(function(){});
+        }
+        showMsg(msg, "با موفقیت وارد شدید.", "ok");
+        setTimeout(closeModal, 600);
+      })
+      .catch(function(err){
+        setBusy(btn, false, "", "ورود");
+        showMsg(msg, "خطای غیرمنتظره: " + err.message, "err");
+      });
+  });
+
+  // ---------- SIGNUP step 1: send OTP ----------
+  signupForm.addEventListener("submit", function(e){
+    e.preventDefault();
+    clearMsg(msg);
+    var email = document.getElementById("mswSignupEmail").value.trim();
+    var btn = document.getElementById("mswSignupBtn");
+    setBusy(btn, true, "در حال ارسال...", "ارسال کد تأیید");
+
+    sb.auth.signInWithOtp({ email: email, options: { shouldCreateUser: true } })
+      .then(function(res){
+        setBusy(btn, false, "", "ارسال کد تأیید");
+        if (res.error) {
+          showMsg(msg, "ارسال کد ناموفق بود: " + res.error.message, "err");
+          return;
+        }
+        pendingEmail = email;
+        pendingMode = "signup";
+        document.getElementById("mswOtpSub").textContent = "کد ۶ رقمی ارسال‌شده به " + email + " رو وارد کن.";
+        showPanel("otp");
+      })
+      .catch(function(err){
+        setBusy(btn, false, "", "ارسال کد تأیید");
+        showMsg(msg, "خطای غیرمنتظره: " + err.message, "err");
+      });
+  });
+
+  // ---------- FORGOT PASSWORD: send OTP ----------
+  forgotForm.addEventListener("submit", function(e){
+    e.preventDefault();
+    clearMsg(msg);
+    var email = document.getElementById("mswForgotEmail").value.trim();
+    var btn = document.getElementById("mswForgotBtn");
+    setBusy(btn, true, "در حال ارسال...", "ارسال کد بازیابی");
+
+    sb.auth.signInWithOtp({ email: email, options: { shouldCreateUser: false } })
+      .then(function(res){
+        setBusy(btn, false, "", "ارسال کد بازیابی");
+        if (res.error) {
+          showMsg(msg, "ارسال کد ناموفق بود: " + res.error.message, "err");
+          return;
+        }
+        pendingEmail = email;
+        pendingMode = "reset";
+        document.getElementById("mswOtpSub").textContent = "کد ۶ رقمی ارسال‌شده به " + email + " رو وارد کن.";
+        showPanel("otp");
+      })
+      .catch(function(err){
+        setBusy(btn, false, "", "ارسال کد بازیابی");
+        showMsg(msg, "خطای غیرمنتظره: " + err.message, "err");
+      });
+  });
+
+  // ---------- OTP verify (shared) ----------
+  otpForm.addEventListener("submit", function(e){
+    e.preventDefault();
+    clearMsg(msg);
+    var code = document.getElementById("mswOtpCode").value.trim();
+    var btn = document.getElementById("mswOtpBtn");
+
+    if (!pendingEmail) {
+      showMsg(msg, "ایمیل مشخص نیست. دوباره تلاش کن.", "err");
+      return;
+    }
+
+    setBusy(btn, true, "در حال بررسی...", "تأیید کد");
+
+    sb.auth.verifyOtp({ email: pendingEmail, token: code, type: "email" })
+      .then(function(res){
+        setBusy(btn, false, "", "تأیید کد");
+        if (res.error) {
+          showMsg(msg, "کد نادرست یا منقضی‌شده: " + res.error.message, "err");
+          return;
+        }
+        if (res.data && res.data.user) {
+          upsertProfile(res.data.user).catch(function(){});
+        }
+        document.getElementById("mswSetPassSub").textContent =
+          pendingMode === "reset"
+            ? "یه رمز عبور جدید برای حسابت انتخاب کن."
+            : "برای تکمیل ثبت‌نام، یه رمز عبور بساز.";
+        showPanel("setpass");
+      })
+      .catch(function(err){
+        setBusy(btn, false, "", "تأیید کد");
+        showMsg(msg, "خطای غیرمنتظره: " + err.message, "err");
+      });
+  });
+
+  resendOtp.addEventListener("click", function(){
+    if (!pendingEmail) return;
+    clearMsg(msg);
+    sb.auth.signInWithOtp({ email: pendingEmail, options: { shouldCreateUser: pendingMode === "signup" } })
+      .then(function(res){
+        if (res.error) {
+          showMsg(msg, "ارسال دوباره ناموفق بود: " + res.error.message, "err");
+        } else {
+          showMsg(msg, "کد جدید ارسال شد.", "ok");
+        }
+      })
+      .catch(function(err){ showMsg(msg, "خطای غیرمنتظره: " + err.message, "err"); });
+  });
+
+  // ---------- SET PASSWORD (after otp verify) ----------
+  setPassForm.addEventListener("submit", function(e){
+    e.preventDefault();
+    clearMsg(msg);
+    var p1 = document.getElementById("mswNewPassword").value;
+    var p2 = document.getElementById("mswNewPassword2").value;
+    var btn = document.getElementById("mswSetPassBtn");
+
+    if (p1.length < 6) {
+      showMsg(msg, "رمز عبور باید حداقل ۶ کاراکتر باشه.", "err");
+      return;
+    }
+    if (p1 !== p2) {
+      showMsg(msg, "رمز عبور و تکرار آن یکسان نیستند.", "err");
+      return;
+    }
+
+    setBusy(btn, true, "در حال ذخیره...", "ذخیره رمز عبور");
+
+    sb.auth.updateUser({ password: p1 })
+      .then(function(res){
+        setBusy(btn, false, "", "ذخیره رمز عبور");
+        if (res.error) {
+          showMsg(msg, "ذخیره رمز عبور ناموفق بود: " + res.error.message, "err");
+          return;
+        }
+        if (res.data && res.data.user) {
+          upsertProfile(res.data.user).catch(function(){});
+        }
+        showMsg(msg, "رمز عبور با موفقیت ذخیره شد.", "ok");
+        pendingEmail = null;
+        pendingMode = null;
+        sb.auth.getSession().then(function(r){ renderForSession(r.data.session); });
+        setTimeout(closeModal, 800);
+      })
+      .catch(function(err){
+        setBusy(btn, false, "", "ذخیره رمز عبور");
+        showMsg(msg, "خطای غیرمنتظره: " + err.message, "err");
+      });
+  });
+
+  // ---------- PROFILE: save display name ----------
+  saveProfileBtn.addEventListener("click", function(){
+    clearMsg(profileMsg);
+    sb.auth.getUser().then(function(res){
+      var user = res.data && res.data.user;
+      if (!user) {
+        showMsg(profileMsg, "ابتدا وارد حساب شو.", "err");
+        return;
+      }
+      var name = displayNameInput.value.trim();
+      setBusy(saveProfileBtn, true, "در حال ذخیره...", "ذخیره تغییرات");
+      upsertProfile(user, { display_name: name })
+        .then(function(res2){
+          setBusy(saveProfileBtn, false, "", "ذخیره تغییرات");
+          if (res2.error) {
+            showMsg(profileMsg, "ذخیره ناموفق بود: " + res2.error.message, "err");
+          } else {
+            showMsg(profileMsg, "تغییرات ذخیره شد.", "ok");
+          }
+        })
+        .catch(function(err){
+          setBusy(saveProfileBtn, false, "", "ذخیره تغییرات");
+          showMsg(profileMsg, "خطای غیرمنتظره: " + err.message, "err");
+        });
+    });
+  });
+
+  // ---------- LOGOUT ----------
+  logoutBtn.addEventListener("click", function(){
+    sb.auth.signOut().then(function(){
+      closeModal();
+    });
+  });
+
+})();
+</script>
 
 </body>
 </html>
