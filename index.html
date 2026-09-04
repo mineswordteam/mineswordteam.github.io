@@ -496,17 +496,18 @@
         <div id="msw-signup-step-email">
           <label for="msw-signup-email">ایمیل</label>
           <input type="email" id="msw-signup-email" autocomplete="email" placeholder="you@example.com">
+          <label for="msw-signup-username">نام کاربری</label>
+          <input type="text" id="msw-signup-username" autocomplete="username" placeholder="نام کاربری خود را وارد کنید">
+          <label for="msw-signup-password">رمز عبور</label>
+          <input type="password" id="msw-signup-password" autocomplete="new-password" placeholder="حداقل ۶ کاراکتر">
+          <label for="msw-signup-password-confirm">تکرار رمز عبور</label>
+          <input type="password" id="msw-signup-password-confirm" autocomplete="new-password" placeholder="رمز عبور را دوباره وارد کنید">
           <button class="msw-btn" id="msw-signup-send-otp-btn" type="button">ارسال کد تأیید</button>
         </div>
         <div id="msw-signup-step-otp" hidden>
           <label for="msw-signup-otp">کد تأیید ارسال‌شده به ایمیل</label>
           <input type="text" id="msw-signup-otp" inputmode="numeric" autocomplete="one-time-code" placeholder="کد ۶ رقمی">
-          <button class="msw-btn" id="msw-signup-verify-otp-btn" type="button">تأیید کد</button>
-        </div>
-        <div id="msw-signup-step-password" hidden>
-          <label for="msw-signup-password">ساخت رمز عبور</label>
-          <input type="password" id="msw-signup-password" autocomplete="new-password" placeholder="حداقل ۶ کاراکتر">
-          <button class="msw-btn" id="msw-signup-set-password-btn" type="button">ثبت رمز و تکمیل ثبت‌نام</button>
+          <button class="msw-btn" id="msw-signup-verify-otp-btn" type="button">تأیید و تکمیل ثبت‌نام</button>
         </div>
         <p class="msw-msg" id="msw-signup-msg"></p>
       </div>
@@ -565,13 +566,13 @@
 
   const signupStepEmail = document.getElementById('msw-signup-step-email');
   const signupStepOtp = document.getElementById('msw-signup-step-otp');
-  const signupStepPassword = document.getElementById('msw-signup-step-password');
   const signupEmail = document.getElementById('msw-signup-email');
+  const signupUsername = document.getElementById('msw-signup-username');
+  const signupPassword = document.getElementById('msw-signup-password');
+  const signupPasswordConfirm = document.getElementById('msw-signup-password-confirm');
   const signupSendOtpBtn = document.getElementById('msw-signup-send-otp-btn');
   const signupOtp = document.getElementById('msw-signup-otp');
   const signupVerifyOtpBtn = document.getElementById('msw-signup-verify-otp-btn');
-  const signupPassword = document.getElementById('msw-signup-password');
-  const signupSetPasswordBtn = document.getElementById('msw-signup-set-password-btn');
   const signupMsg = document.getElementById('msw-signup-msg');
 
   const resetEmail = document.getElementById('msw-reset-email');
@@ -583,7 +584,9 @@
   const recoveryMsg = document.getElementById('msw-recovery-msg');
 
   let pendingSignupEmail = '';
-  let awaitingSignupPassword = false; // true between OTP verification and password creation during signup
+  let pendingSignupUsername = '';
+  let pendingSignupPassword = ''; // held in memory only until applied via updateUser() right after OTP verification
+  let awaitingSignupPassword = false; // true between OTP verification and password/profile finalization during signup
   const PRODUCTION_REDIRECT_URL = 'https://mineswordteam.github.io/';
 
   // ---------- helpers ----------
@@ -657,10 +660,18 @@
     setMsg(loginMsg, 'ورود با موفقیت انجام شد.', 'success');
   });
 
-  // ---------- signup step 1: send OTP ----------
+  // ---------- signup step 1: validate fields, then send OTP ----------
   signupSendOtpBtn.addEventListener('click', async function(){
     const email = signupEmail.value.trim();
+    const username = signupUsername.value.trim();
+    const password = signupPassword.value;
+    const passwordConfirm = signupPasswordConfirm.value;
+
     if(!email){ setMsg(signupMsg, 'ایمیل را وارد کنید', 'error'); return; }
+    if(!username){ setMsg(signupMsg, 'نام کاربری را وارد کنید', 'error'); return; }
+    if(!password || password.length < 6){ setMsg(signupMsg, 'رمز عبور باید حداقل ۶ کاراکتر باشد', 'error'); return; }
+    if(password !== passwordConfirm){ setMsg(signupMsg, 'رمز عبور و تکرار آن مطابقت ندارند', 'error'); return; }
+
     signupSendOtpBtn.disabled = true;
     setMsg(signupMsg, 'در حال ارسال کد تأیید...');
     const { error } = await supabase.auth.signInWithOtp({
@@ -672,49 +683,80 @@
     });
     signupSendOtpBtn.disabled = false;
     if(error){ setMsg(signupMsg, 'خطا در ارسال کد: ' + error.message, 'error'); return; }
+
     pendingSignupEmail = email;
+    pendingSignupUsername = username;
+    pendingSignupPassword = password; // held only in memory until applied right after OTP verification
     setMsg(signupMsg, 'کد تأیید برای ایمیل شما ارسال شد.', 'success');
     signupStepEmail.hidden = true;
     signupStepOtp.hidden = false;
   });
 
-  // ---------- signup step 2: verify OTP ----------
+  // ---------- signup step 2: verify OTP, then apply the password + profile collected earlier ----------
   signupVerifyOtpBtn.addEventListener('click', async function(){
     const token = signupOtp.value.trim();
     if(!token){ setMsg(signupMsg, 'کد تأیید را وارد کنید', 'error'); return; }
     signupVerifyOtpBtn.disabled = true;
     setMsg(signupMsg, 'در حال بررسی کد...');
-    const { error } = await supabase.auth.verifyOtp({
+    const { error: verifyError } = await supabase.auth.verifyOtp({
       email: pendingSignupEmail,
       token: token,
       type: 'email'
     });
-    signupVerifyOtpBtn.disabled = false;
-    if(error){ setMsg(signupMsg, 'کد نامعتبر است: ' + error.message, 'error'); return; }
-    awaitingSignupPassword = true;
-    setMsg(signupMsg, 'ایمیل تأیید شد. اکنون رمز عبور بسازید.', 'success');
-    signupStepOtp.hidden = true;
-    signupStepPassword.hidden = false;
-  });
+    if(verifyError){
+      signupVerifyOtpBtn.disabled = false;
+      setMsg(signupMsg, 'کد نامعتبر است: ' + verifyError.message, 'error');
+      return;
+    }
 
-  // ---------- signup step 3: set password ----------
-  signupSetPasswordBtn.addEventListener('click', async function(){
-    const password = signupPassword.value;
-    if(!password || password.length < 6){ setMsg(signupMsg, 'رمز عبور باید حداقل ۶ کاراکتر باشد', 'error'); return; }
-    signupSetPasswordBtn.disabled = true;
-    setMsg(signupMsg, 'در حال ثبت رمز عبور...');
-    const { error } = await supabase.auth.updateUser({ password: password });
-    signupSetPasswordBtn.disabled = false;
-    if(error){ setMsg(signupMsg, 'خطا: ' + error.message, 'error'); return; }
+    // OTP verified and a session now exists. Hold off the auto-redirect to the
+    // logged-in view until the password and profile below are actually saved.
+    awaitingSignupPassword = true;
+    setMsg(signupMsg, 'در حال تکمیل ثبت‌نام...');
+
+    const { error: passwordError } = await supabase.auth.updateUser({ password: pendingSignupPassword });
+    if(passwordError){
+      signupVerifyOtpBtn.disabled = false;
+      awaitingSignupPassword = false;
+      setMsg(signupMsg, 'خطا در ثبت رمز عبور: ' + passwordError.message, 'error');
+      return;
+    }
+
+    const { data: userData } = await supabase.auth.getUser();
+    const newUser = userData && userData.user;
+    if(newUser){
+      const { error: profileError } = await supabase.from('profiles').upsert({
+        id: newUser.id,
+        email: newUser.email,
+        username: pendingSignupUsername,
+        updated_at: new Date().toISOString()
+      });
+      if(profileError){
+        signupVerifyOtpBtn.disabled = false;
+        awaitingSignupPassword = false;
+        setMsg(signupMsg, 'خطا در ذخیره‌سازی پروفایل: ' + profileError.message, 'error');
+        return;
+      }
+    }
+
+    // Clear the in-memory password now that it has been applied.
+    pendingSignupPassword = '';
+    pendingSignupUsername = '';
+    pendingSignupEmail = '';
+
+    signupVerifyOtpBtn.disabled = false;
     setMsg(signupMsg, 'ثبت‌نام با موفقیت کامل شد!', 'success');
-    awaitingSignupPassword = false;
+
     signupEmail.value = '';
-    signupOtp.value = '';
+    signupUsername.value = '';
     signupPassword.value = '';
-    signupStepPassword.hidden = true;
+    signupPasswordConfirm.value = '';
+    signupOtp.value = '';
+    signupStepOtp.hidden = true;
     signupStepEmail.hidden = false;
-    const { data } = await supabase.auth.getUser();
-    if(data && data.user){ showLoggedIn(data.user); }
+
+    awaitingSignupPassword = false;
+    if(newUser){ showLoggedIn(newUser); }
   });
 
   // ---------- forgot password ----------
