@@ -583,6 +583,8 @@
   const recoveryMsg = document.getElementById('msw-recovery-msg');
 
   let pendingSignupEmail = '';
+  let awaitingSignupPassword = false; // true between OTP verification and password creation during signup
+  const PRODUCTION_REDIRECT_URL = 'https://mineswordteam.github.io/';
 
   // ---------- helpers ----------
   function setMsg(el, text, type){
@@ -663,7 +665,10 @@
     setMsg(signupMsg, 'در حال ارسال کد تأیید...');
     const { error } = await supabase.auth.signInWithOtp({
       email: email,
-      options: { shouldCreateUser: true }
+      options: {
+        shouldCreateUser: true,
+        emailRedirectTo: PRODUCTION_REDIRECT_URL
+      }
     });
     signupSendOtpBtn.disabled = false;
     if(error){ setMsg(signupMsg, 'خطا در ارسال کد: ' + error.message, 'error'); return; }
@@ -686,6 +691,7 @@
     });
     signupVerifyOtpBtn.disabled = false;
     if(error){ setMsg(signupMsg, 'کد نامعتبر است: ' + error.message, 'error'); return; }
+    awaitingSignupPassword = true;
     setMsg(signupMsg, 'ایمیل تأیید شد. اکنون رمز عبور بسازید.', 'success');
     signupStepOtp.hidden = true;
     signupStepPassword.hidden = false;
@@ -701,6 +707,14 @@
     signupSetPasswordBtn.disabled = false;
     if(error){ setMsg(signupMsg, 'خطا: ' + error.message, 'error'); return; }
     setMsg(signupMsg, 'ثبت‌نام با موفقیت کامل شد!', 'success');
+    awaitingSignupPassword = false;
+    signupEmail.value = '';
+    signupOtp.value = '';
+    signupPassword.value = '';
+    signupStepPassword.hidden = true;
+    signupStepEmail.hidden = false;
+    const { data } = await supabase.auth.getUser();
+    if(data && data.user){ showLoggedIn(data.user); }
   });
 
   // ---------- forgot password ----------
@@ -710,7 +724,7 @@
     resetSendBtn.disabled = true;
     setMsg(resetMsg, 'در حال ارسال...');
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin + window.location.pathname
+      redirectTo: PRODUCTION_REDIRECT_URL
     });
     resetSendBtn.disabled = false;
     if(error){ setMsg(resetMsg, 'خطا: ' + error.message, 'error'); return; }
@@ -764,6 +778,11 @@
   supabase.auth.onAuthStateChange(function(event, session){
     if(event === 'PASSWORD_RECOVERY'){
       showRecovery();
+      return;
+    }
+    if(awaitingSignupPassword){
+      // Mid-signup: OTP just verified but password not set yet.
+      // Stay on the "set password" step instead of jumping to the logged-in view.
       return;
     }
     if(session && session.user){
