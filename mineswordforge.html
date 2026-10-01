@@ -4,19 +4,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Minesword Forge — بازی‌ساز حرفه‌ای HTML | تیم Minesword</title>
-<meta name="description" content="Minesword Forge — بازی‌ساز حرفه‌ای HTML از تیم Minesword. ساخت بازی دو و سه‌بعدی بدون کد یا با کد، فیزیک، انیمیشن، صدا، کنترل موبایل و خروجی HTML مستقل. به‌زودی در مایکت.">
+<meta name="description" content="Minesword Forge — بازی‌ساز حرفه‌ای HTML از تیم Minesword. ساخت بازی دو و سه‌بعدی بدون کد یا با کد، فیزیک، انیمیشن، صدا، کنترل موبایل و خروجی HTML مستقل. دانلود از مایکت.">
 <link rel="canonical" href="https://mineswordteam.github.io/mineswordforge.html">
 <meta name="robots" content="index, follow">
 <meta name="author" content="Minesword Team">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Minesword Team">
 <meta property="og:title" content="Minesword Forge — بازی‌ساز حرفه‌ای HTML">
-<meta property="og:description" content="ساخت بازی دو و سه‌بعدی، بدون کد یا با کد. فیزیک، انیمیشن، صدا، کنترل موبایل و خروجی HTML مستقل. به‌زودی در مایکت.">
+<meta property="og:description" content="ساخت بازی دو و سه‌بعدی، بدون کد یا با کد. فیزیک، انیمیشن، صدا، کنترل موبایل و خروجی HTML مستقل. دانلود از مایکت.">
 <meta property="og:url" content="https://mineswordteam.github.io/mineswordforge.html">
 <meta property="og:locale" content="fa_IR">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Minesword Forge">
-<meta name="twitter:description" content="بازی‌ساز حرفه‌ای HTML — بدون کد + با کد. به‌زودی در مایکت.">
+<meta name="twitter:description" content="بازی‌ساز حرفه‌ای HTML — بدون کد + با کد. دانلود از مایکت.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;900&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
@@ -272,6 +272,11 @@
     box-shadow:0 0 10px var(--alarm);
   }
 
+  a.platform-chip{cursor:pointer; text-decoration:none;}
+  a.platform-chip:hover{filter:brightness(1.15);}
+  a.myket-btn{cursor:pointer; text-decoration:none; opacity:1;}
+  a.myket-btn:hover{filter:brightness(1.2); border-style:solid;}
+
   /* ---------- windows download dropdown ---------- */
   .win-download-wrap{
     position:relative;
@@ -377,7 +382,7 @@
   <h1>Minesword Forge</h1>
   <div class="platform-status">
     <button type="button" class="platform-chip ready" onclick="goToWinDownload()"><span class="dot"></span>نسخه ویندوز</button>
-    <span class="platform-chip soon"><span class="dot"></span>نسخه اندروید: به‌زودی در مایکت</span>
+    <a class="platform-chip ready" href="https://myket.ir/app/com.mineswordteam.mineswordforge" target="_blank" rel="noopener"><span class="dot"></span>نسخه اندروید: دانلود از مایکت</a>
   </div>
   <p class="tag">
     بازی‌ساز حرفه‌ای HTML — بدون کد بساز یا با کد شخصی‌سازی کن.
@@ -553,10 +558,10 @@
       </div>
     </div>
 
-    <div class="myket-btn stencil">
+    <a class="myket-btn stencil" href="https://myket.ir/app/com.mineswordteam.mineswordforge" target="_blank" rel="noopener">
       <span class="dot"></span>
-      نسخه اندروید به‌زودی در مایکت
-    </div>
+      دانلود نسخه اندروید از مایکت
+    </a>
   </div>
 </section>
 
